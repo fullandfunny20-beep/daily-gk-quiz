@@ -1,0 +1,52 @@
+
+name: Build Daily GK Quiz APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Extract project
+        run: |
+          mkdir app
+          unzip daily-gk-quiz-hindi.zip -d app
+
+      - name: Configure Capacitor
+        working-directory: app
+        run: |
+          npm install
+          npm install @capacitor/core@7 @capacitor/android@7
+          npm install -D @capacitor/cli@7
+          sed -i '/return {/a\    base: "./",' vite.config.ts
+          echo "import type { CapacitorConfig } from '@capacitor/cli'; const config: CapacitorConfig = { appId: 'com.dailygkquiz.hindi', appName: 'Daily GK Quiz Hindi', webDir: 'dist' }; export default config;" > capacitor.config.ts
+          npx cap add android
+          npm run build
+          npx cap sync android
+
+      - name: Build APK
+        working-directory: app/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Daily-GK-Quiz-APK
+          path: app/android/app/build/outputs/apk/debug/app-debug.apk
