@@ -31,8 +31,8 @@ jobs:
         working-directory: app
         run: |
           npm install --legacy-peer-deps
-npm install @capacitor/core@7 @capacitor/android@7 --legacy-peer-deps
-npm install -D @capacitor/cli@7 --legacy-peer-deps
+          npm install @capacitor/core@7 @capacitor/android@7 --legacy-peer-deps
+          npm install -D @capacitor/cli@7 --legacy-peer-deps
           sed -i '/return {/a\    base: "./",' vite.config.ts
           echo "import type { CapacitorConfig } from '@capacitor/cli'; const config: CapacitorConfig = { appId: 'com.dailygkquiz.hindi', appName: 'Daily GK Quiz Hindi', webDir: 'dist' }; export default config;" > capacitor.config.ts
           npx cap add android
